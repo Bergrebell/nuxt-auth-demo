@@ -15,23 +15,18 @@ app.use(bodyParser.json())
 app.use(
   jwt({
     secret: 'dummy',
-    algorithms: ['RS256']
+    algorithms: ['HS256']
   }).unless({
-    path: ['/api/auth/login', '/api/auth/refresh']
+    path: '/api/auth/login'
   })
 )
-
-// Refresh tokens
-const refreshTokens = {}
 
 // -- Routes --
 
 // [POST] /login
-app.post('/login', (req, res) => {
+app.post('/login', (req, res, next) => {
   const { username, password } = req.body
   const valid = username.length && password === '123'
-  const expiresIn = 15
-  const refreshToken = Math.floor(Math.random() * (1000000000000000 - 1 + 1)) + 1
 
   if (!valid) {
     throw new Error('Invalid username or password')
@@ -43,75 +38,29 @@ app.post('/login', (req, res) => {
       picture: 'https://github.com/nuxt.png',
       name: 'User ' + username,
       scope: ['test', 'user']
-    }, 'dummy', {
-      expiresIn
-    }
+    },
+    'dummy'
   )
-
-  refreshTokens[refreshToken] = {
-    accessToken,
-    user: {
-      username,
-      picture: 'https://github.com/nuxt.png',
-      name: 'User ' + username
-    }
-  }
 
   res.json({
     token: {
-      accessToken,
-      refreshToken
+      accessToken
     }
   })
 })
 
-app.post('/refresh', (req, res) => {
-  const { refreshToken } = req.body
-
-  if ((refreshToken in refreshTokens)) {
-    const user = refreshTokens[refreshToken].user
-    const expiresIn = 15
-    const newRefreshToken = Math.floor(Math.random() * (1000000000000000 - 1 + 1)) + 1
-    delete refreshTokens[refreshToken]
-    const accessToken = jsonwebtoken.sign(
-      {
-        user: user.username,
-        picture: 'https://github.com/nuxt.png',
-        name: 'User ' + user.username,
-        scope: ['test', 'user']
-      }, 'dummy', {
-        expiresIn
-      }
-    )
-
-    refreshTokens[newRefreshToken] = {
-      accessToken,
-      user
-    }
-
-    res.json({
-      token: {
-        accessToken,
-        refreshToken: newRefreshToken
-      }
-    })
-  } else {
-    res.sendStatus(401)
-  }
-})
-
 // [GET] /user
-app.get('/user', (req, res) => {
+app.get('/user', (req, res, next) => {
   res.json({ user: req.user })
 })
 
 // [POST] /logout
-app.post('/logout', (_req, res) => {
+app.post('/logout', (req, res, next) => {
   res.json({ status: 'OK' })
 })
 
 // Error handler
-app.use((err, _req, res) => {
+app.use((err, req, res, next) => {
   console.error(err) // eslint-disable-line no-console
   res.status(401).send(err + '')
 })

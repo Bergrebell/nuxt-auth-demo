@@ -4,14 +4,13 @@
       Login
     </h2>
     <hr>
-    <b-alert v-if="errorMessage" show variant="danger">
-      {{ errorMessage }}
+    <b-alert v-if="error" show variant="danger">
+      {{ error + '' }}
     </b-alert>
     <b-alert v-if="$auth.$state.redirect" show>
-      You have to login before accessing to
-      <strong>{{ $auth.$state.redirect }}</strong>
+      You have to login before accessing to <strong>{{ $auth.$state.redirect }}</strong>
     </b-alert>
-    <b-row align-h="center" class="pt-4">
+    <b-row align-h="center pt-4">
       <b-col md="4">
         <b-card bg-variant="light">
           <busy-overlay />
@@ -28,9 +27,6 @@
               <b-btn variant="primary" block @click="login">
                 Login
               </b-btn>
-              <b-btn variant="secondary" block @click="localRefresh">
-                Login with Refresh
-              </b-btn>
             </div>
           </form>
         </b-card>
@@ -45,63 +41,8 @@
       <b-col md="4" class="text-center">
         <b-card title="Social Login" bg-variant="light">
           <div v-for="s in strategies" :key="s.key" class="mb-2">
-            <b-btn
-              block
-              :style="{background: s.color}"
-              class="login-button"
-              @click="$auth.loginWith(s.key)"
-            >
+            <b-btn block :style="{background: s.color}" class="login-button" @click="$auth.loginWith(s.key)">
               Login with {{ s.name }}
-            </b-btn>
-          </div>
-          <div class="mb-2">
-            <b-btn
-              block
-              :style="{background: 'purple'}"
-              class="login-button"
-              @click="$auth.loginWith('oauth2mock')"
-            >
-              Login with oauth2
-            </b-btn>
-          </div>
-          <div class="mb-2">
-            <b-btn
-              block
-              :style="{background: '#ff2d20'}"
-              class="login-button"
-              @click="loginSanctum"
-            >
-              Login with Laravel Sanctum (Test User)
-            </b-btn>
-          </div>
-          <div class="mb-2">
-            <b-btn
-              block
-              :style="{background: '#f8145a'}"
-              class="login-button"
-              @click="loginJWT"
-            >
-              Login with Laravel JWT (Test User)
-            </b-btn>
-          </div>
-          <div class="mb-2">
-            <b-btn
-              block
-              :style="{background: '#c61952'}"
-              class="login-button"
-              @click="loginPassport"
-            >
-              Login with Laravel Passport (Test User)
-            </b-btn>
-          </div>
-          <div class="mb-2">
-            <b-btn
-              block
-              :style="{background: '#8c0d32'}"
-              class="login-button"
-              @click="loginPassportGrantFlow"
-            >
-              Login with Laravel Passport Password Grant (Test User)
             </b-btn>
           </div>
         </b-card>
@@ -113,12 +54,10 @@
 <style scoped>
 .login-button {
   border: 0;
-}
+};
 </style>
 
 <script>
-/* eslint-disable require-await */
-
 import busyOverlay from '~/components/busy-overlay'
 
 export default {
@@ -132,12 +71,12 @@ export default {
     }
   },
   computed: {
-    strategies: () => [
+    strategies: () => ([
       { key: 'auth0', name: 'Auth0', color: '#ec5425' },
       { key: 'google', name: 'Google', color: '#4284f4' },
       { key: 'facebook', name: 'Facebook', color: '#3c65c4' },
       { key: 'github', name: 'GitHub', color: '#202326' }
-    ],
+    ]),
     redirect () {
       return (
         this.$route.query.redirect &&
@@ -146,26 +85,10 @@ export default {
     },
     isCallback () {
       return Boolean(this.$route.query.callback)
-    },
-    errorMessage () {
-      const { error } = this
-      if (!error || typeof error === 'string') {
-        return error
-      }
-      let msg = ''
-      if (error.message) {
-        msg += error.message
-      }
-      if (error.errors) {
-        msg += `(${JSON.stringify(error.errors)
-          .replace(/[{}"[\]]/g, '')
-          .replace(/:/g, ': ')
-          .replace(/,/g, ' ')})`
-      }
-      return msg
     }
   },
   methods: {
+    // eslint-disable-next-line require-await
     async login () {
       this.error = null
 
@@ -177,77 +100,7 @@ export default {
           }
         })
         .catch((e) => {
-          this.error = e.response.data
-        })
-    },
-
-    async localRefresh () {
-      this.error = null
-
-      return this.$auth
-        .loginWith('localRefresh', {
-          data: {
-            username: this.username,
-            password: this.password
-          }
-        })
-        .catch((e) => {
-          this.error = e.response.data
-        })
-    },
-
-    async loginJWT () {
-      this.error = null
-
-      return this.$auth
-        .loginWith('laravelJWT', {
-          data: {
-            email: 'test@test.com',
-            password: '12345678'
-          }
-        })
-        .catch((e) => {
-          this.error = e.response ? e.response.data : e.toString()
-        })
-    },
-
-    async loginPassport () {
-      this.error = null
-
-      return this.$auth
-        .loginWith('laravelPassport')
-        .catch((e) => {
-          this.error = e.response ? e.response.data : e.toString()
-        })
-    },
-
-    async loginPassportGrantFlow () {
-      this.error = null
-
-      return this.$auth
-        .loginWith('laravelPassportPassword', {
-          data: {
-            username: 'test@test.com',
-            password: '12345678'
-          }
-        })
-        .catch((e) => {
-          this.error = e.response ? e.response.data.message : e.toString()
-        })
-    },
-
-    async loginSanctum () {
-      this.error = null
-
-      return this.$auth
-        .loginWith('laravelSanctum', {
-          data: {
-            email: 'test@test.com',
-            password: '12345678'
-          }
-        })
-        .catch((e) => {
-          this.error = e.response ? e.response.data : e.toString()
+          this.error = e + ''
         })
     }
   }

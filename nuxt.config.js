@@ -37,36 +37,29 @@ export default {
   plugins: [],
 
   // AUTH SETUP ----------------------------------------
-  serverMiddleware: ['~/api/auth'],
-
+  modules: [
+    // Doc: https://axios.nuxtjs.org/usage
+    '@nuxtjs/axios',
+    '@nuxtjs/auth',
+    'bootstrap-vue/nuxt'
+  ],
   axios: {
     proxy: true
   },
+
+  serverMiddleware: ['~/api/auth'],
+
   proxy: {
     '/api': 'http://localhost:3000'
   },
-
   auth: {
     redirect: {
-      callback: '/callback',
-      logout: '/signed-out'
+      callback: '/callback'
     },
     strategies: {
       local: {
-        token: {
-          property: 'token.accessToken'
-        }
-      },
-      localRefresh: {
-        scheme: 'refresh',
-        token: {
-          property: 'token.accessToken',
-          maxAge: 15
-        },
-        refreshToken: {
-          property: 'token.refreshToken',
-          data: 'refreshToken',
-          maxAge: false
+        endpoints: {
+          login: { propertyName: 'token.accessToken' }
         }
       }
     }
@@ -85,15 +78,7 @@ export default {
     // Doc: https://github.com/nuxt-community/eslint-module
     '@nuxtjs/eslint-module'
   ],
-  /*
-   ** Nuxt.js modules
-   */
-  modules: [
-    // Doc: https://axios.nuxtjs.org/usage
-    '@nuxtjs/axios',
-    '@nuxtjs/auth',
-    'bootstrap-vue/nuxt'
-  ],
+
   /*
    ** Build configuration
    ** See https://nuxtjs.org/api/configuration-build/

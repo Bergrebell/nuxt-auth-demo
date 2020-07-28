@@ -1,7 +1,7 @@
 <template>
   <div>
     <b-alert show variant="warning">
-      This is a secure page!
+      This  is a secure page!
     </b-alert>
     <b-row>
       <b-col md="8">
@@ -15,15 +15,8 @@
           Test: <b-badge>{{ $auth.hasScope('test') }}</b-badge>
           Admin: <b-badge>{{ $auth.hasScope('admin') }}</b-badge>
         </b-card>
-        <b-card v-if="$auth.strategy.token" title="token" class="mb-2">
-          <div style="white-space: nowrap; overflow: auto">
-            {{ $auth.strategy.token.get() || '-' }}
-          </div>
-        </b-card>
-        <b-card v-if="$auth.strategy.refreshToken" title="refresh token">
-          <div style="white-space: nowrap; overflow: auto">
-            {{ $auth.strategy.refreshToken.get() || '-' }}
-          </div>
+        <b-card title="token">
+          {{ $auth.token || '-' }}
         </b-card>
       </b-col>
     </b-row>
@@ -31,9 +24,6 @@
     <b-btn-group>
       <b-button @click="$auth.fetchUser()">
         Fetch User
-      </b-button>
-      <b-button @click="refreshTokens">
-        Refresh Tokens
       </b-button>
       <b-button @click="$auth.logout()">
         Logout
@@ -48,13 +38,6 @@ export default {
   computed: {
     state () {
       return JSON.stringify(this.$auth.$state, undefined, 2)
-    }
-  },
-  methods: {
-    refreshTokens () {
-      this.$auth.refreshTokens().catch((e) => {
-        this.error = e + ''
-      })
     }
   }
 }
