@@ -1,4 +1,11 @@
-# demo
+# Nuxt Auth Module example (V4.9.1)
+
+this is a demo of the nuxt-auth module. 
+
+in `master` there is the standard example for 4.9.1.
+in `develop` there is an updated example from v5 with some settings from 4.9.1
+
+therefore your are better off by using the `master`-branch.
 
 ## Build Setup
 
